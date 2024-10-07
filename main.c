@@ -27,7 +27,7 @@ typedef struct {
 
 TipoPokemon getTipo() {
     int tipo;
-    printf("Escolha o tipo do Pokemon (0 - Fogo, 1 - Agua, 2 - Planta, 3 - Eletrico, 4 - Grama, 5 - Fantasma, 6 - Pedra, 7 - Luta, 8 - Psíquico, 9 - Fada, 10 - Voador, 11 - Inseto): ");
+    printf("Escolha o tipo do Pokémon (0 - Fogo, 1 - Água, 2 - Planta): ");
     scanf("%d", &tipo);
     return (TipoPokemon)tipo;
 }
@@ -35,25 +35,25 @@ TipoPokemon getTipo() {
 void addPokemon(Player* player) {
     if (player->count < MAX_POKEMONS) {
         Pokemon newPokemon;
-        printf("Digite o nome do Pokemon: ");
+        printf("Digite o nome do Pokémon: ");
         scanf("%s", newPokemon.name);
-        printf("Digite o nivel do Pokemon: ");
+        printf("Digite o nível do Pokémon: ");
         scanf("%d", &newPokemon.level);
         newPokemon.health = newPokemon.level * 10;
         newPokemon.attack = newPokemon.level * 2;
         newPokemon.type = getTipo(); // Obtém o tipo do Pokémon
         player->pokemons[player->count] = newPokemon;
         player->count++;
-        printf("Pokemon adicionado!\n");
+        printf("Pokémon adicionado!\n");
     } else {
-        printf("Limite de Pokemon alcançado!\n");
+        printf("Limite de Pokémon alcançado!\n");
     }
 }
 
 void displayPokemons(Player* player) {
-    printf("Pokemons do jogador:\n");
+    printf("Pokémons do jogador:\n");
     for (int i = 0; i < player->count; i++) {
-        printf("Nome: %s, Nivel: %d, Saude: %d, Ataque: %d, Tipo: %d\n",
+        printf("Nome: %s, Nível: %d, Saúde: %d, Ataque: %d, Tipo: %d\n",
                player->pokemons[i].name,
                player->pokemons[i].level,
                player->pokemons[i].health,
@@ -62,21 +62,31 @@ void displayPokemons(Player* player) {
     }
 }
 
+void logBattle(const char* winner, const char* loser) {
+    FILE* logFile = fopen("battle_log.txt", "a"); // Abre o arquivo para adicionar
+    if (!logFile) {
+        printf("Erro ao abrir o arquivo de registro de batalhas!\n");
+        return;
+    }
+    fprintf(logFile, "Batalha: %s venceu %s\n", winner, loser); // Registra o vencedor e o perdedor
+    fclose(logFile);
+}
+
 void capturePokemon(Player* player) {
     if (player->count >= MAX_POKEMONS) {
-        printf("Voce ja tem o numero maximo de Pokemon!\n");
+        printf("Você já tem o número máximo de Pokémon!\n");
         return;
     }
 
     // Pokémon selvagem gerado aleatoriamente
     Pokemon wildPokemon;
-    sprintf(wildPokemon.name, "Pokemon Selvagem %d", rand() % 100); // Nome aleatório
+    sprintf(wildPokemon.name, "Pokémon Selvagem %d", rand() % 100); // Nome aleatório
     wildPokemon.level = rand() % 10 + 1; // Nível aleatório de 1 a 10
     wildPokemon.health = wildPokemon.level * 10;
     wildPokemon.attack = wildPokemon.level * 2;
 
     printf("Um %s selvagem apareceu!\n", wildPokemon.name);
-    printf("Nivel: %d, Saude: %d, Ataque: %d\n", wildPokemon.level, wildPokemon.health, wildPokemon.attack);
+    printf("Nível: %d, Saúde: %d, Ataque: %d\n", wildPokemon.level, wildPokemon.health, wildPokemon.attack);
 
     // Simulação de captura (50% de chance)
     if (rand() % 2 == 0) {
@@ -90,16 +100,16 @@ void capturePokemon(Player* player) {
 
 void trainPokemon(Player* player) {
     if (player->count == 0) {
-        printf("Voce nao tem Pokemon para treinar!\n");
+        printf("Você não tem Pokémon para treinar!\n");
         return;
     }
 
     int index;
-    printf("Escolha um Pokemon para treinar (0 a %d): ", player->count - 1);
+    printf("Escolha um Pokémon para treinar (0 a %d): ", player->count - 1);
     scanf("%d", &index);
 
     if (index < 0 || index >= player->count) {
-        printf("Escolha invalida!\n");
+        printf("Escolha inválida!\n");
         return;
     }
 
@@ -107,23 +117,23 @@ void trainPokemon(Player* player) {
     pokemon->level++;
     pokemon->health = pokemon->level * 10; // Atualiza saúde com base no nível
     pokemon->attack = pokemon->level * 2; // Atualiza ataque com base no nível
-    printf("%s treinou! Novo nivel: %d, Saude: %d, Ataque: %d\n", pokemon->name, pokemon->level, pokemon->health, pokemon->attack);
+    printf("%s treinou! Novo nível: %d, Saúde: %d, Ataque: %d\n", pokemon->name, pokemon->level, pokemon->health, pokemon->attack);
 }
 
 void battle(Player* player) {
     if (player->count < 2) {
-        printf("Voce precisa de pelo menos 2 Pokemon para batalhar!\n");
+        printf("Você precisa de pelo menos 2 Pokémon para batalhar!\n");
         return;
     }
 
     int p1, p2;
-    printf("Escolha o Pokemon 1 (0 a %d): ", player->count - 1);
+    printf("Escolha o Pokémon 1 (0 a %d): ", player->count - 1);
     scanf("%d", &p1);
-    printf("Escolha o Pokemon 2 (0 a %d): ", player->count - 1);
+    printf("Escolha o Pokémon 2 (0 a %d): ", player->count - 1);
     scanf("%d", &p2);
 
     if (p1 < 0 || p1 >= player->count || p2 < 0 || p2 >= player->count) {
-        printf("Escolha invalida!\n");
+        printf("Escolha inválida!\n");
         return;
     }
 
@@ -147,16 +157,18 @@ void battle(Player* player) {
     // Simulação de batalha
     while (pokemon1->health > 0 && pokemon2->health > 0) {
         pokemon2->health -= pokemon1->attack * multiplier;
-        printf("%s atacou %s! %s saude: %d\n", pokemon1->name, pokemon2->name, pokemon2->name, pokemon2->health);
+        printf("%s atacou %s! %s saúde: %d\n", pokemon1->name, pokemon2->name, pokemon2->name, pokemon2->health);
         if (pokemon2->health <= 0) {
             printf("%s venceu!\n", pokemon1->name);
+            logBattle(pokemon1->name, pokemon2->name); // Registra a batalha
             return;
         }
 
         pokemon1->health -= pokemon2->attack;
-        printf("%s atacou %s! %s saude: %d\n", pokemon2->name, pokemon1->name, pokemon1->name, pokemon1->health);
+        printf("%s atacou %s! %s saúde: %d\n", pokemon2->name, pokemon1->name, pokemon1->name, pokemon1->health);
         if (pokemon1->health <= 0) {
             printf("%s venceu!\n", pokemon2->name);
+            logBattle(pokemon2->name, pokemon1->name); // Registra a batalha
             return;
         }
     }
@@ -190,15 +202,15 @@ int main() {
 
     int choice;
     do {
-        printf("1. Adicionar Pokemon\n");
-        printf("2. Exibir Pokemons\n");
+        printf("1. Adicionar Pokémon\n");
+        printf("2. Exibir Pokémons\n");
         printf("3. Batalhar\n");
-        printf("4. Capturar Pokemon\n");
-        printf("5. Treinar Pokemon\n");
+        printf("4. Capturar Pokémon\n");
+        printf("5. Treinar Pokémon\n");
         printf("6. Salvar Jogo\n");
         printf("7. Carregar Jogo\n");
         printf("0. Sair\n");
-        printf("Escolha uma opcao: ");
+        printf("Escolha uma opção: ");
         scanf("%d", &choice);
 
         switch (choice) {
@@ -224,11 +236,10 @@ int main() {
                 loadGame(&player);
                 break;
             case 0:
-                printf("Saindo...\n");
+                printf("Saindo do jogo...\n");
                 break;
             default:
-                printf("Opção invalida!\n");
-                break;
+                printf("Opção inválida! Tente novamente.\n");
         }
     } while (choice != 0);
 
