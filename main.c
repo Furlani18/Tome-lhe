@@ -1,211 +1,236 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 
-// Definicao de um Pokemon
+#define MAX_POKEMONS 10
+#define NAME_LENGTH 20
+
+typedef enum {
+    FOGO,
+    AGUA,
+    PLANTA,
+    TIPO_MAX
+} TipoPokemon;
+
 typedef struct {
-    char nome[20];
-    int hp;
-    int ataque;
-    int defesa;
-    char tipo[10];
-    int nivel;
+    char name[NAME_LENGTH];
+    int level;
+    int health;
+    int attack;
+    TipoPokemon type; // Tipo do Pokémon
 } Pokemon;
 
-// Função para exibir o status de um Pokemon
-void exibirStatus(Pokemon p) {
-    printf("\n=== Status do Pokemon ===\n");
-    printf("Nome: %s\n", p.nome);
-    printf("Tipo: %s\n", p.tipo);
-    printf("Nivel: %d\n", p.nivel);
-    printf("HP: %d\n", p.hp);
-    printf("Ataque: %d\n", p.ataque);
-    printf("Defesa: %d\n", p.defesa);
-    printf("=========================\n");
+typedef struct {
+    Pokemon pokemons[MAX_POKEMONS];
+    int count;
+} Player;
+
+TipoPokemon getTipo() {
+    int tipo;
+    printf("Escolha o tipo do Pokemon (0 - Fogo, 1 - Agua, 2 - Planta, 3 - Eletrico, 4 - Pedra, 5 - Normal, 6 - Inseto, 7 - Luta, 8 - Psíquico, 9 - Fantasma, 10 - Voador, 11 - Fada,): ");
+    scanf("%d", &tipo);
+    return (TipoPokemon)tipo;
 }
 
-// Função para calcular o dano causado
-int calcularDano(int ataque, int defesa) {
-    int dano = ataque - defesa;
-    if (dano < 0) {
-        dano = 0;
-    }
-    return dano;
-}
-
-// Função para a batalha
-void batalha(Pokemon *player, Pokemon *inimigo) {
-    int turno = 1;
-    while (player->hp > 0 && inimigo->hp > 0) {
-        printf("\n=== Turno %d ===\n", turno);
-        exibirStatus(*player);
-        exibirStatus(*inimigo);
-
-        // Escolha do jogador
-        int escolha;
-        printf("Escolha sua ação:\n");
-        printf("1. Atacar\n");
-        printf("2. Usar ataque especial\n");
-        printf("3. Defender\n");
-        printf("4. Usar item\n");
-        printf("Escolha: ");
-        scanf("%d", &escolha);
-
-        // Ações do jogador
-        int dano;
-        switch (escolha) {
-            case 1: // Jogador ataca
-                dano = calcularDano(player->ataque, inimigo->defesa);
-                inimigo->hp -= dano;
-                printf("Você atacou! Causou %d de dano ao %s.\n", dano, inimigo->nome);
-                break;
-            case 2: // Jogador usa ataque especial
-                dano = calcularDano(player->ataque * 1.5, inimigo->defesa);
-                inimigo->hp -= dano;
-                printf("Você usou um ataque especial! Causou %d de dano ao %s.\n", dano, inimigo->nome);
-                break;
-            case 3: // Jogador defende
-                printf("Você escolheu se defender!\n");
-                player->defesa += 3;  // Aumenta temporariamente a defesa
-                break;
-            case 4: // Jogador usa item
-                printf("Você usou um item!\n");
-                player->hp += 20; // Recupera HP
-                printf("Recuperou 20 HP!\n");
-                break;
-            default:
-                printf("Opção inválida!\n");
-                continue;  // Retorna ao início do loop
-        }
-
-        // Movimento do inimigo (aleatório)
-        int movimentoInimigo = rand() % 2 + 1; // Inimigo só ataca ou defende
-        if (movimentoInimigo == 1) {  // Inimigo ataca
-            dano = calcularDano(inimigo->ataque, player->defesa);
-            player->hp -= dano;
-            printf("%s atacou! Causou %d de dano a você.\n", inimigo->nome, dano);
-        } else {  // Inimigo defende
-            printf("%s se defendeu!\n", inimigo->nome);
-            inimigo->defesa += 3; // Aumenta a defesa do inimigo
-        }
-
-        // Nível e evolução
-        if (inimigo->hp <= 0) {
-            printf("\nVocê venceu a batalha!\n");
-            player->nivel++; // Aumenta o nível do jogador após vencer
-            printf("Seu Pokémon subiu para o nível %d!\n", player->nivel);
-            // Evolução: exemplo básico, você pode expandir isso
-            if (player->nivel == 5) {
-                printf("%s evoluiu!\n", player->nome);
-                player->ataque += 5; // Exemplo de evolução
-                player->defesa += 3; // Exemplo de evolução
-                player->hp += 10; // Exemplo de evolução
-            }
-        }
-
-        turno++;
-    }
-
-    // Resultado da batalha
-    if (player->hp <= 0) {
-        printf("\nVocê perdeu a batalha!\n");
+void addPokemon(Player* player) {
+    if (player->count < MAX_POKEMONS) {
+        Pokemon newPokemon;
+        printf("Digite o nome do Pokemon: ");
+        scanf("%s", newPokemon.name);
+        printf("Digite o nivel do Pokemon: ");
+        scanf("%d", &newPokemon.level);
+        newPokemon.health = newPokemon.level * 10;
+        newPokemon.attack = newPokemon.level * 2;
+        newPokemon.type = getTipo(); // Obtém o tipo do Pokémon
+        player->pokemons[player->count] = newPokemon;
+        player->count++;
+        printf("Pokemon adicionado!\n");
+    } else {
+        printf("Limite de Pokemon alcançado!\n");
     }
 }
 
-// Função para mostrar informações sobre os Pokemons disponíveis
-void mostrarPokemons(Pokemon listaPokemons[], int tamanho) {
-    printf("\n=== Lista de Pokemons ===\n");
-    for (int i = 0; i < tamanho; i++) {
-        printf("%d. %s | Nivel: %d | HP: %d | Ataque: %d | Defesa: %d | Tipo: %s\n", 
-               i + 1, 
-               listaPokemons[i].nome, 
-               listaPokemons[i].nivel, 
-               listaPokemons[i].hp, 
-               listaPokemons[i].ataque, 
-               listaPokemons[i].defesa, 
-               listaPokemons[i].tipo);
+void displayPokemons(Player* player) {
+    printf("Pokemons do jogador:\n");
+    for (int i = 0; i < player->count; i++) {
+        printf("Nome: %s, Nivel: %d, Saude: %d, Ataque: %d, Tipo: %d\n",
+               player->pokemons[i].name,
+               player->pokemons[i].level,
+               player->pokemons[i].health,
+               player->pokemons[i].attack,
+               player->pokemons[i].type);
     }
-    printf("=========================\n");
 }
 
-// Menu principal do jogo
-void menu(Pokemon listaPokemons[], int tamanho) {
-    int opcao;
-    do {
-        printf("\n=== Menu Principal ===\n");
-        printf("| 1. Iniciar Batalha    |\n");
-        printf("| 2. Ver Pokemons       |\n");
-        printf("| 3. Sair               |\n");
-        printf("=========================\n");
-        printf("Escolha uma opcao: ");
-        scanf("%d", &opcao);
+void capturePokemon(Player* player) {
+    if (player->count >= MAX_POKEMONS) {
+        printf("Voce ja tem o numero maximo de Pokemon!\n");
+        return;
+    }
 
-        switch (opcao) {
-            case 1: {
-                int escolhaPlayer;
+    // Pokémon selvagem gerado aleatoriamente
+    Pokemon wildPokemon;
+    sprintf(wildPokemon.name, "Pokemon Selvagem %d", rand() % 100); // Nome aleatório
+    wildPokemon.level = rand() % 10 + 1; // Nível aleatório de 1 a 10
+    wildPokemon.health = wildPokemon.level * 10;
+    wildPokemon.attack = wildPokemon.level * 2;
 
-                // Jogador escolhe seu Pokemon
-                printf("Escolha seu Pokemon:\n");
-                mostrarPokemons(listaPokemons, tamanho);
-                scanf("%d", &escolhaPlayer);
-                Pokemon player = listaPokemons[escolhaPlayer - 1];
+    printf("Um %s selvagem apareceu!\n", wildPokemon.name);
+    printf("Nível: %d, Saude: %d, Ataque: %d\n", wildPokemon.level, wildPokemon.health, wildPokemon.attack);
 
-                // Inimigo escolhe aleatoriamente
-                int escolhaInimigo = rand() % tamanho;
-                Pokemon inimigo = listaPokemons[escolhaInimigo];
+    // Simulação de captura (50% de chance)
+    if (rand() % 2 == 0) {
+        player->pokemons[player->count] = wildPokemon;
+        player->count++;
+        printf("Voce capturou %s!\n", wildPokemon.name);
+    } else {
+        printf("A captura falhou!\n");
+    }
+}
 
-                printf("\nUma batalha entre %s e %s vai começar!\n", player.nome, inimigo.nome);
-                batalha(&player, &inimigo);
-                break;
-            }
-            case 2:
-                mostrarPokemons(listaPokemons, tamanho);
-                break;
-            case 3:
-                printf("Saindo do jogo...\n");
-                break;
-            default:
-                printf("Opcao invalida! Tente novamente.\n");
-                break;
+void trainPokemon(Player* player) {
+    if (player->count == 0) {
+        printf("Voce não tem Pokemon para treinar!\n");
+        return;
+    }
+
+    int index;
+    printf("Escolha um Pokemon para treinar (0 a %d): ", player->count - 1);
+    scanf("%d", &index);
+
+    if (index < 0 || index >= player->count) {
+        printf("Escolha invalida!\n");
+        return;
+    }
+
+    Pokemon* pokemon = &player->pokemons[index];
+    pokemon->level++;
+    pokemon->health = pokemon->level * 10; // Atualiza saúde com base no nível
+    pokemon->attack = pokemon->level * 2; // Atualiza ataque com base no nível
+    printf("%s treinou! Novo nivel: %d, Saude: %d, Ataque: %d\n", pokemon->name, pokemon->level, pokemon->health, pokemon->attack);
+}
+
+void battle(Player* player) {
+    if (player->count < 2) {
+        printf("Voce precisa de pelo menos 2 Pokemon para batalhar!\n");
+        return;
+    }
+
+    int p1, p2;
+    printf("Escolha o Pokemon 1 (0 a %d): ", player->count - 1);
+    scanf("%d", &p1);
+    printf("Escolha o Pokemon 2 (0 a %d): ", player->count - 1);
+    scanf("%d", &p2);
+
+    if (p1 < 0 || p1 >= player->count || p2 < 0 || p2 >= player->count) {
+        printf("Escolha invalida!\n");
+        return;
+    }
+
+    Pokemon* pokemon1 = &player->pokemons[p1];
+    Pokemon* pokemon2 = &player->pokemons[p2];
+
+    // Considera vantagem de tipo
+    float multiplier = 1.0;
+    if ((pokemon1->type == FOGO && pokemon2->type == PLANTA) ||
+        (pokemon1->type == AGUA && pokemon2->type == FOGO) ||
+        (pokemon1->type == PLANTA && pokemon2->type == AGUA)) {
+        multiplier = 1.5; // Pokémon 1 tem vantagem
+    } else if ((pokemon2->type == FOGO && pokemon1->type == PLANTA) ||
+               (pokemon2->type == AGUA && pokemon1->type == FOGO) ||
+               (pokemon2->type == PLANTA && pokemon1->type == AGUA)) {
+        multiplier = 0.5; // Pokémon 2 tem vantagem
+    }
+
+    printf("Batalha entre %s e %s!\n", pokemon1->name, pokemon2->name);
+
+    // Simulação de batalha
+    while (pokemon1->health > 0 && pokemon2->health > 0) {
+        pokemon2->health -= pokemon1->attack * multiplier;
+        printf("%s atacou %s! %s saúde: %d\n", pokemon1->name, pokemon2->name, pokemon2->name, pokemon2->health);
+        if (pokemon2->health <= 0) {
+            printf("%s venceu!\n", pokemon1->name);
+            return;
         }
-    } while (opcao != 3);
+
+        pokemon1->health -= pokemon2->attack;
+        printf("%s atacou %s! %s saúde: %d\n", pokemon2->name, pokemon1->name, pokemon1->name, pokemon1->health);
+        if (pokemon1->health <= 0) {
+            printf("%s venceu!\n", pokemon2->name);
+            return;
+        }
+    }
+}
+
+void saveGame(Player* player) {
+    FILE* file = fopen("savegame.dat", "wb");
+    if (!file) {
+        printf("Erro ao salvar o jogo!\n");
+        return;
+    }
+    fwrite(player, sizeof(Player), 1, file);
+    fclose(file);
+    printf("Jogo salvo com sucesso!\n");
+}
+
+void loadGame(Player* player) {
+    FILE* file = fopen("savegame.dat", "rb");
+    if (!file) {
+        printf("Nenhum arquivo salvo encontrado!\n");
+        return;
+    }
+    fread(player, sizeof(Player), 1, file);
+    fclose(file);
+    printf("Jogo carregado com sucesso!\n");
 }
 
 int main() {
-    srand(time(NULL));  // Inicializa o gerador de números aleatórios
+    Player player;
+    player.count = 0;
 
-    // Lista de Pokemons para o jogador e inimigo escolher
-    Pokemon listaPokemons[25] = {
-        {"Pikachu", 35, 10, 5, "eletrico", 1},
-        {"Charmander", 30, 8, 6, "fogo", 1},
-        {"Squirtle", 40, 7, 8, "agua", 1},
-        {"Bulbasaur", 45, 9, 7, "grama", 1},
-        {"Jigglypuff", 115, 5, 5, "normal", 1},
-        {"Gengar", 60, 14, 5, "fantasma", 1},
-        {"Onix", 35, 10, 20, "pedra", 1},
-        {"Gyarados", 95, 20, 10, "agua", 1},
-        {"Charizard", 78, 14, 9, "fogo", 1},
-        {"Snorlax", 160, 12, 8, "normal", 1},
-        {"Mewtwo", 106, 14, 9, "psíquico", 1},
-        {"Eevee", 55, 10, 6, "normal", 1},
-        {"Machamp", 90, 16, 8, "luta", 1},
-        {"Alakazam", 55, 14, 7, "psíquico", 1},
-        {"Lapras", 130, 12, 10, "agua", 1},
-        {"Ditto", 48, 8, 5, "normal", 1},
-        {"Scyther", 70, 12, 8, "inseto", 1},
-        {"Kabutops", 60, 15, 7, "pedra", 1},
-        {"Tyranitar", 100, 18, 10, "pedra", 1},
-        {"Zapdos", 90, 15, 10, "eletrico", 1},
-        {"Lucario", 70, 14, 8, "luta", 1},
-        {"Greninja", 72, 14, 8, "agua", 1},
-        {"Mimikyu", 55, 12, 9, "fantasma", 1},
-        {"Incineroar", 95, 16, 9, "fogo", 1},
-        {"Togekiss", 85, 10, 8, "fada", 1},
-        {"Cinderace", 80, 17, 7, "fogo", 1},
-        {"Rillaboom", 90, 15, 10, "grama", 1}
-    };
+    int choice;
+    do {
+        printf("1. Adicionar Pokemon\n");
+        printf("2. Exibir Pokemons\n");
+        printf("3. Batalhar\n");
+        printf("4. Capturar Pokemon\n");
+        printf("5. Treinar Pokemon\n");
+        printf("6. Salvar Jogo\n");
+        printf("7. Carregar Jogo\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &choice);
 
-    menu(listaPokemons, 25);
+        switch (choice) {
+            case 1:
+                addPokemon(&player);
+                break;
+            case 2:
+                displayPokemons(&player);
+                break;
+            case 3:
+                battle(&player);
+                break;
+            case 4:
+                capturePokemon(&player);
+                break;
+            case 5:
+                trainPokemon(&player);
+                break;
+            case 6:
+                saveGame(&player);
+                break;
+            case 7:
+                loadGame(&player);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção invalida!\n");
+                break;
+        }
+    } while (choice != 0);
+
     return 0;
 }
