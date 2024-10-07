@@ -14,7 +14,13 @@ typedef struct {
 
 // Funcao para exibir o status de um Pokemon
 void exibirStatus(Pokemon p) {
-    printf("%s (Tipo: %s) | HP: %d | Ataque: %d | Defesa: %d\n", p.nome, p.tipo, p.hp, p.ataque, p.defesa);
+    printf("\n=== Status do Pokemon ===\n");
+    printf("Nome: %s\n", p.nome);
+    printf("Tipo: %s\n", p.tipo);
+    printf("HP: %d\n", p.hp);
+    printf("Ataque: %d\n", p.ataque);
+    printf("Defesa: %d\n", p.defesa);
+    printf("=========================\n");
 }
 
 // Funcao para calcular o dano causado com multiplicador de tipos
@@ -48,43 +54,60 @@ void batalha(Pokemon *player, Pokemon *inimigo) {
 
         // Escolha do jogador
         int escolha;
-        printf("Escolha sua acao:\n1. Atacar\n2. Ataque Especial\n3. Ataque Critico\n4. Defender\n5. Defesa Especial\nEscolha: ");
+        printf("Escolha sua acao:\n");
+        printf("1. Atacar\n");
+        printf("2. Ataque Especial\n");
+        printf("3. Ataque Critico\n");
+        printf("4. Defender\n");
+        printf("5. Defesa Especial\n");
+        printf("Escolha: ");
         scanf("%d", &escolha);
 
         // Movimento do inimigo (aleatorio)
         int movimentoInimigo = rand() % 5 + 1;
 
-        if (escolha == 1) {  // Jogador ataca
-            int dano = calcularDano(player->ataque, inimigo->defesa, player->tipo, inimigo->tipo);
-            inimigo->hp -= dano;
-            printf("Voce atacou! Causou %d de dano ao %s.\n", dano, inimigo->nome);
-        } else if (escolha == 2) {  // Jogador ataque especial
-            int dano = calcularDano(player->ataque * 1.5, inimigo->defesa, player->tipo, inimigo->tipo);
-            inimigo->hp -= dano;
-            printf("Voce usou um ataque especial! Causou %d de dano ao %s.\n", dano, inimigo->nome);
-        } else if (escolha == 3) {  // Jogador ataque critico
-            int dano = calcularDano(player->ataque * 2, inimigo->defesa, player->tipo, inimigo->tipo);
-            inimigo->hp -= dano;
-            printf("Voce usou um ataque critico! Causou %d de dano ao %s.\n", dano, inimigo->nome);
-        } else if (escolha == 4) {  // Jogador defende
-            printf("Voce escolheu se defender!\n");
-            player->defesa += 3;  // Aumenta temporariamente a defesa
-        } else if (escolha == 5) {  // Jogador defesa especial
-            printf("Voce usou uma defesa especial!\n");
-            player->defesa += 5;  // Aumenta mais ainda a defesa
+        // Acoes do jogador
+        int dano;
+        switch (escolha) {
+            case 1: // Jogador ataca
+                dano = calcularDano(player->ataque, inimigo->defesa, player->tipo, inimigo->tipo);
+                inimigo->hp -= dano;
+                printf("Voce atacou! Causou %d de dano ao %s.\n", dano, inimigo->nome);
+                break;
+            case 2: // Jogador ataque especial
+                dano = calcularDano(player->ataque * 1.5, inimigo->defesa, player->tipo, inimigo->tipo);
+                inimigo->hp -= dano;
+                printf("Voce usou um ataque especial! Causou %d de dano ao %s.\n", dano, inimigo->nome);
+                break;
+            case 3: // Jogador ataque critico
+                dano = calcularDano(player->ataque * 2, inimigo->defesa, player->tipo, inimigo->tipo);
+                inimigo->hp -= dano;
+                printf("Voce usou um ataque critico! Causou %d de dano ao %s.\n", dano, inimigo->nome);
+                break;
+            case 4: // Jogador defende
+                printf("Voce escolheu se defender!\n");
+                player->defesa += 3;  // Aumenta temporariamente a defesa
+                break;
+            case 5: // Jogador defesa especial
+                printf("Voce usou uma defesa especial!\n");
+                player->defesa += 5;  // Aumenta mais ainda a defesa
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                continue;  // Retorna ao inicio do loop
         }
 
         // Movimento do inimigo
         if (movimentoInimigo == 1) {  // Inimigo ataca
-            int dano = calcularDano(inimigo->ataque, player->defesa, inimigo->tipo, player->tipo);
+            dano = calcularDano(inimigo->ataque, player->defesa, inimigo->tipo, player->tipo);
             player->hp -= dano;
             printf("%s atacou! Causou %d de dano a voce.\n", inimigo->nome, dano);
         } else if (movimentoInimigo == 2) {  // Inimigo ataque especial
-            int dano = calcularDano(inimigo->ataque * 1.5, player->defesa, inimigo->tipo, player->tipo);
+            dano = calcularDano(inimigo->ataque * 1.5, player->defesa, inimigo->tipo, player->tipo);
             player->hp -= dano;
             printf("%s usou um ataque especial! Causou %d de dano a voce.\n", inimigo->nome, dano);
         } else if (movimentoInimigo == 3) {  // Inimigo ataque critico
-            int dano = calcularDano(inimigo->ataque * 2, player->defesa, inimigo->tipo, player->tipo);
+            dano = calcularDano(inimigo->ataque * 2, player->defesa, inimigo->tipo, player->tipo);
             player->hp -= dano;
             printf("%s usou um ataque critico! Causou %d de dano a voce.\n", inimigo->nome, dano);
         } else if (movimentoInimigo == 4) {  // Inimigo defende
@@ -110,7 +133,13 @@ void batalha(Pokemon *player, Pokemon *inimigo) {
 void mostrarPokemons(Pokemon listaPokemons[], int tamanho) {
     printf("\n=== Lista de Pokemons ===\n");
     for (int i = 0; i < tamanho; i++) {
-        printf("%d. %s | HP: %d | Ataque: %d | Defesa: %d | Tipo: %s\n", i + 1, listaPokemons[i].nome, listaPokemons[i].hp, listaPokemons[i].ataque, listaPokemons[i].defesa, listaPokemons[i].tipo);
+        printf("%d. %s | HP: %d | Ataque: %d | Defesa: %d | Tipo: %s\n", 
+               i + 1, 
+               listaPokemons[i].nome, 
+               listaPokemons[i].hp, 
+               listaPokemons[i].ataque, 
+               listaPokemons[i].defesa, 
+               listaPokemons[i].tipo);
     }
     printf("=========================\n");
 }
@@ -120,9 +149,10 @@ void menu(Pokemon listaPokemons[], int tamanho) {
     int opcao;
     do {
         printf("\n=== Menu Principal ===\n");
-        printf("1. Iniciar Batalha\n");
-        printf("2. Ver Pokemons\n");
-        printf("3. Sair\n");
+        printf("| 1. Iniciar Batalha    |\n");
+        printf("| 2. Ver Pokemons       |\n");
+        printf("| 3. Sair               |\n");
+        printf("=========================\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
