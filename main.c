@@ -10,41 +10,31 @@ typedef struct {
     int ataque;
     int defesa;
     char tipo[10];
+    int nivel;
 } Pokemon;
 
-// Funcao para exibir o status de um Pokemon
+// Função para exibir o status de um Pokemon
 void exibirStatus(Pokemon p) {
     printf("\n=== Status do Pokemon ===\n");
     printf("Nome: %s\n", p.nome);
     printf("Tipo: %s\n", p.tipo);
+    printf("Nivel: %d\n", p.nivel);
     printf("HP: %d\n", p.hp);
     printf("Ataque: %d\n", p.ataque);
     printf("Defesa: %d\n", p.defesa);
     printf("=========================\n");
 }
 
-// Funcao para calcular o dano causado com multiplicador de tipos
-int calcularDano(int ataque, int defesa, char *tipoAtacante, char *tipoDefensor) {
+// Função para calcular o dano causado
+int calcularDano(int ataque, int defesa) {
     int dano = ataque - defesa;
     if (dano < 0) {
         dano = 0;
     }
-
-    // Multiplicadores de dano com base nos tipos
-    if (strcmp(tipoAtacante, "eletrico") == 0 && strcmp(tipoDefensor, "agua") == 0) {
-        dano *= 2;  // Eletrico contra Agua
-    } else if (strcmp(tipoAtacante, "fogo") == 0 && strcmp(tipoDefensor, "grama") == 0) {
-        dano *= 2;  // Fogo contra Grama
-    } else if (strcmp(tipoAtacante, "agua") == 0 && strcmp(tipoDefensor, "fogo") == 0) {
-        dano *= 2;  // Agua contra Fogo
-    } else if (strcmp(tipoAtacante, "grama") == 0 && strcmp(tipoDefensor, "agua") == 0) {
-        dano *= 2;  // Grama contra Agua
-    }
-
     return dano;
 }
 
-// Funcao para a batalha
+// Função para a batalha
 void batalha(Pokemon *player, Pokemon *inimigo) {
     int turno = 1;
     while (player->hp > 0 && inimigo->hp > 0) {
@@ -54,68 +44,64 @@ void batalha(Pokemon *player, Pokemon *inimigo) {
 
         // Escolha do jogador
         int escolha;
-        printf("Escolha sua acao:\n");
+        printf("Escolha sua ação:\n");
         printf("1. Atacar\n");
-        printf("2. Ataque Especial\n");
-        printf("3. Ataque Critico\n");
-        printf("4. Defender\n");
-        printf("5. Defesa Especial\n");
+        printf("2. Usar ataque especial\n");
+        printf("3. Defender\n");
+        printf("4. Usar item\n");
         printf("Escolha: ");
         scanf("%d", &escolha);
 
-        // Movimento do inimigo (aleatorio)
-        int movimentoInimigo = rand() % 5 + 1;
-
-        // Acoes do jogador
+        // Ações do jogador
         int dano;
         switch (escolha) {
             case 1: // Jogador ataca
-                dano = calcularDano(player->ataque, inimigo->defesa, player->tipo, inimigo->tipo);
+                dano = calcularDano(player->ataque, inimigo->defesa);
                 inimigo->hp -= dano;
-                printf("Voce atacou! Causou %d de dano ao %s.\n", dano, inimigo->nome);
+                printf("Você atacou! Causou %d de dano ao %s.\n", dano, inimigo->nome);
                 break;
-            case 2: // Jogador ataque especial
-                dano = calcularDano(player->ataque * 1.5, inimigo->defesa, player->tipo, inimigo->tipo);
+            case 2: // Jogador usa ataque especial
+                dano = calcularDano(player->ataque * 1.5, inimigo->defesa);
                 inimigo->hp -= dano;
-                printf("Voce usou um ataque especial! Causou %d de dano ao %s.\n", dano, inimigo->nome);
+                printf("Você usou um ataque especial! Causou %d de dano ao %s.\n", dano, inimigo->nome);
                 break;
-            case 3: // Jogador ataque critico
-                dano = calcularDano(player->ataque * 2, inimigo->defesa, player->tipo, inimigo->tipo);
-                inimigo->hp -= dano;
-                printf("Voce usou um ataque critico! Causou %d de dano ao %s.\n", dano, inimigo->nome);
-                break;
-            case 4: // Jogador defende
-                printf("Voce escolheu se defender!\n");
+            case 3: // Jogador defende
+                printf("Você escolheu se defender!\n");
                 player->defesa += 3;  // Aumenta temporariamente a defesa
                 break;
-            case 5: // Jogador defesa especial
-                printf("Voce usou uma defesa especial!\n");
-                player->defesa += 5;  // Aumenta mais ainda a defesa
+            case 4: // Jogador usa item
+                printf("Você usou um item!\n");
+                player->hp += 20; // Recupera HP
+                printf("Recuperou 20 HP!\n");
                 break;
             default:
-                printf("Opcao invalida!\n");
-                continue;  // Retorna ao inicio do loop
+                printf("Opção inválida!\n");
+                continue;  // Retorna ao início do loop
         }
 
-        // Movimento do inimigo
+        // Movimento do inimigo (aleatório)
+        int movimentoInimigo = rand() % 2 + 1; // Inimigo só ataca ou defende
         if (movimentoInimigo == 1) {  // Inimigo ataca
-            dano = calcularDano(inimigo->ataque, player->defesa, inimigo->tipo, player->tipo);
+            dano = calcularDano(inimigo->ataque, player->defesa);
             player->hp -= dano;
-            printf("%s atacou! Causou %d de dano a voce.\n", inimigo->nome, dano);
-        } else if (movimentoInimigo == 2) {  // Inimigo ataque especial
-            dano = calcularDano(inimigo->ataque * 1.5, player->defesa, inimigo->tipo, player->tipo);
-            player->hp -= dano;
-            printf("%s usou um ataque especial! Causou %d de dano a voce.\n", inimigo->nome, dano);
-        } else if (movimentoInimigo == 3) {  // Inimigo ataque critico
-            dano = calcularDano(inimigo->ataque * 2, player->defesa, inimigo->tipo, player->tipo);
-            player->hp -= dano;
-            printf("%s usou um ataque critico! Causou %d de dano a voce.\n", inimigo->nome, dano);
-        } else if (movimentoInimigo == 4) {  // Inimigo defende
-            printf("%s escolheu se defender!\n", inimigo->nome);
-            inimigo->defesa += 3;
-        } else if (movimentoInimigo == 5) {  // Inimigo defesa especial
-            printf("%s usou uma defesa especial!\n", inimigo->nome);
-            inimigo->defesa += 5;
+            printf("%s atacou! Causou %d de dano a você.\n", inimigo->nome, dano);
+        } else {  // Inimigo defende
+            printf("%s se defendeu!\n", inimigo->nome);
+            inimigo->defesa += 3; // Aumenta a defesa do inimigo
+        }
+
+        // Nível e evolução
+        if (inimigo->hp <= 0) {
+            printf("\nVocê venceu a batalha!\n");
+            player->nivel++; // Aumenta o nível do jogador após vencer
+            printf("Seu Pokémon subiu para o nível %d!\n", player->nivel);
+            // Evolução: exemplo básico, você pode expandir isso
+            if (player->nivel == 5) {
+                printf("%s evoluiu!\n", player->nome);
+                player->ataque += 5; // Exemplo de evolução
+                player->defesa += 3; // Exemplo de evolução
+                player->hp += 10; // Exemplo de evolução
+            }
         }
 
         turno++;
@@ -123,19 +109,18 @@ void batalha(Pokemon *player, Pokemon *inimigo) {
 
     // Resultado da batalha
     if (player->hp <= 0) {
-        printf("\nVoce perdeu a batalha!\n");
-    } else {
-        printf("\nVoce venceu a batalha!\n");
+        printf("\nVocê perdeu a batalha!\n");
     }
 }
 
-// Funcao para mostrar informacoes sobre os Pokemons disponiveis
+// Função para mostrar informações sobre os Pokemons disponíveis
 void mostrarPokemons(Pokemon listaPokemons[], int tamanho) {
     printf("\n=== Lista de Pokemons ===\n");
     for (int i = 0; i < tamanho; i++) {
-        printf("%d. %s | HP: %d | Ataque: %d | Defesa: %d | Tipo: %s\n", 
+        printf("%d. %s | Nivel: %d | HP: %d | Ataque: %d | Defesa: %d | Tipo: %s\n", 
                i + 1, 
                listaPokemons[i].nome, 
+               listaPokemons[i].nivel, 
                listaPokemons[i].hp, 
                listaPokemons[i].ataque, 
                listaPokemons[i].defesa, 
@@ -158,7 +143,7 @@ void menu(Pokemon listaPokemons[], int tamanho) {
 
         switch (opcao) {
             case 1: {
-                int escolhaPlayer, escolhaInimigo;
+                int escolhaPlayer;
 
                 // Jogador escolhe seu Pokemon
                 printf("Escolha seu Pokemon:\n");
@@ -167,10 +152,10 @@ void menu(Pokemon listaPokemons[], int tamanho) {
                 Pokemon player = listaPokemons[escolhaPlayer - 1];
 
                 // Inimigo escolhe aleatoriamente
-                escolhaInimigo = rand() % tamanho;
+                int escolhaInimigo = rand() % tamanho;
                 Pokemon inimigo = listaPokemons[escolhaInimigo];
 
-                printf("\nUma batalha entre %s e %s vai comecar!\n", player.nome, inimigo.nome);
+                printf("\nUma batalha entre %s e %s vai começar!\n", player.nome, inimigo.nome);
                 batalha(&player, &inimigo);
                 break;
             }
@@ -188,40 +173,39 @@ void menu(Pokemon listaPokemons[], int tamanho) {
 }
 
 int main() {
-    srand(time(NULL));  // Inicializa o gerador de numeros aleatorios
+    srand(time(NULL));  // Inicializa o gerador de números aleatórios
 
     // Lista de Pokemons para o jogador e inimigo escolher
-   Pokemon listaPokemons[25] = {
-    {"Pikachu", 35, 10, 5, "eletrico"},
-    {"Charmander", 30, 8, 6, "fogo"},
-    {"Squirtle", 40, 7, 8, "agua"},
-    {"Bulbasaur", 38, 9, 7, "grama"},
-    {"Jigglypuff", 115, 6, 5, "normal"},
-    {"Meowth", 40, 10, 5, "normal"},
-    {"Psyduck", 50, 7, 5, "agua"},
-    {"Gengar", 60, 11, 6, "fantasma"},
-    {"Onix", 55, 8, 12, "pedra"},
-    {"Zapdos", 90, 12, 8, "eletrico"},
-    {"Snorlax", 160, 12, 10, "normal"},
-    {"Machamp", 90, 13, 8, "luta"},
-    {"Eevee", 55, 7, 6, "normal"},
-    {"Flareon", 65, 11, 7, "fogo"},
-    {"Vaporeon", 65, 8, 8, "agua"},
-    {"Arcanine", 90, 12, 9, "fogo"},
-    {"Lapras", 130, 9, 10, "agua"},
-    {"Dragonite", 91, 14, 10, "dragao"},
-    {"Alakazam", 55, 13, 5, "psiquico"},
-    {"Machoke", 80, 12, 7, "luta"},
-    {"Nidoking", 81, 12, 7, "terra"},
-    {"Gyarados", 95, 14, 10, "agua"},
-    {"Lucario", 70, 12, 8, "luta"},
-    {"Mewtwo", 106, 14, 9, "psiquico"},
-    {"Tyranitar", 100, 13, 10, "pedra"},
-    {"Crobat", 85, 10, 7, "veneno"}
-};
+    Pokemon listaPokemons[25] = {
+        {"Pikachu", 35, 10, 5, "eletrico", 1},
+        {"Charmander", 30, 8, 6, "fogo", 1},
+        {"Squirtle", 40, 7, 8, "agua", 1},
+        {"Bulbasaur", 45, 9, 7, "grama", 1},
+        {"Jigglypuff", 115, 5, 5, "normal", 1},
+        {"Gengar", 60, 14, 5, "fantasma", 1},
+        {"Onix", 35, 10, 20, "pedra", 1},
+        {"Gyarados", 95, 20, 10, "agua", 1},
+        {"Charizard", 78, 14, 9, "fogo", 1},
+        {"Snorlax", 160, 12, 8, "normal", 1},
+        {"Mewtwo", 106, 14, 9, "psíquico", 1},
+        {"Eevee", 55, 10, 6, "normal", 1},
+        {"Machamp", 90, 16, 8, "luta", 1},
+        {"Alakazam", 55, 14, 7, "psíquico", 1},
+        {"Lapras", 130, 12, 10, "agua", 1},
+        {"Ditto", 48, 8, 5, "normal", 1},
+        {"Scyther", 70, 12, 8, "inseto", 1},
+        {"Kabutops", 60, 15, 7, "pedra", 1},
+        {"Tyranitar", 100, 18, 10, "pedra", 1},
+        {"Zapdos", 90, 15, 10, "eletrico", 1},
+        {"Lucario", 70, 14, 8, "luta", 1},
+        {"Greninja", 72, 14, 8, "agua", 1},
+        {"Mimikyu", 55, 12, 9, "fantasma", 1},
+        {"Incineroar", 95, 16, 9, "fogo", 1},
+        {"Togekiss", 85, 10, 8, "fada", 1},
+        {"Cinderace", 80, 17, 7, "fogo", 1},
+        {"Rillaboom", 90, 15, 10, "grama", 1}
+    };
 
-    // Chama o menu principal
     menu(listaPokemons, 25);
-
     return 0;
 }
