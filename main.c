@@ -27,7 +27,7 @@ typedef struct {
 
 TipoPokemon getTipo() {
     int tipo;
-    printf("Escolha o tipo do Pokemon (0 - Fogo, 1 - Agua, 2 - Planta, 3 - Eletrico, 4 - Pedra, 5 - Normal, 6 - Inseto, 7 - Luta, 8 - Psíquico, 9 - Fantasma, 10 - Voador, 11 - Fada,): ");
+    printf("Escolha o tipo do Pokemon (0 - Fogo, 1 - Agua, 2 - Planta, 3 - Eletrico, 4 - Grama, 5 - Fantasma, 6 - Pedra, 7 - Luta, 8 - Psíquico, 9 - Fada, 10 - Voador, 11 - Inseto): ");
     scanf("%d", &tipo);
     return (TipoPokemon)tipo;
 }
@@ -76,13 +76,13 @@ void capturePokemon(Player* player) {
     wildPokemon.attack = wildPokemon.level * 2;
 
     printf("Um %s selvagem apareceu!\n", wildPokemon.name);
-    printf("Nível: %d, Saude: %d, Ataque: %d\n", wildPokemon.level, wildPokemon.health, wildPokemon.attack);
+    printf("Nivel: %d, Saude: %d, Ataque: %d\n", wildPokemon.level, wildPokemon.health, wildPokemon.attack);
 
     // Simulação de captura (50% de chance)
     if (rand() % 2 == 0) {
         player->pokemons[player->count] = wildPokemon;
         player->count++;
-        printf("Voce capturou %s!\n", wildPokemon.name);
+        printf("Você capturou %s!\n", wildPokemon.name);
     } else {
         printf("A captura falhou!\n");
     }
@@ -90,7 +90,7 @@ void capturePokemon(Player* player) {
 
 void trainPokemon(Player* player) {
     if (player->count == 0) {
-        printf("Voce não tem Pokemon para treinar!\n");
+        printf("Voce nao tem Pokemon para treinar!\n");
         return;
     }
 
@@ -147,14 +147,14 @@ void battle(Player* player) {
     // Simulação de batalha
     while (pokemon1->health > 0 && pokemon2->health > 0) {
         pokemon2->health -= pokemon1->attack * multiplier;
-        printf("%s atacou %s! %s saúde: %d\n", pokemon1->name, pokemon2->name, pokemon2->name, pokemon2->health);
+        printf("%s atacou %s! %s saude: %d\n", pokemon1->name, pokemon2->name, pokemon2->name, pokemon2->health);
         if (pokemon2->health <= 0) {
             printf("%s venceu!\n", pokemon1->name);
             return;
         }
 
         pokemon1->health -= pokemon2->attack;
-        printf("%s atacou %s! %s saúde: %d\n", pokemon2->name, pokemon1->name, pokemon1->name, pokemon1->health);
+        printf("%s atacou %s! %s saude: %d\n", pokemon2->name, pokemon1->name, pokemon1->name, pokemon1->health);
         if (pokemon1->health <= 0) {
             printf("%s venceu!\n", pokemon2->name);
             return;
@@ -163,23 +163,23 @@ void battle(Player* player) {
 }
 
 void saveGame(Player* player) {
-    FILE* file = fopen("savegame.dat", "wb");
+    FILE* file = fopen("savegame.bin", "wb"); // Abre o arquivo binário
     if (!file) {
         printf("Erro ao salvar o jogo!\n");
         return;
     }
-    fwrite(player, sizeof(Player), 1, file);
+    fwrite(player, sizeof(Player), 1, file); // Escreve os dados do player no arquivo binário
     fclose(file);
     printf("Jogo salvo com sucesso!\n");
 }
 
 void loadGame(Player* player) {
-    FILE* file = fopen("savegame.dat", "rb");
+    FILE* file = fopen("savegame.bin", "rb"); // Abre o arquivo binário para leitura
     if (!file) {
         printf("Nenhum arquivo salvo encontrado!\n");
         return;
     }
-    fread(player, sizeof(Player), 1, file);
+    fread(player, sizeof(Player), 1, file); // Carrega os dados do player do arquivo binário
     fclose(file);
     printf("Jogo carregado com sucesso!\n");
 }
